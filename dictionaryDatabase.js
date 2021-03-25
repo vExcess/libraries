@@ -1,1 +1,1 @@
-var DICTIONARY_DATABSE = ["fat", "milk", "dairy", "glucose", "top ramen"];
+var DICTIONARY_DATABASE = ["fat", "milk", "dairy", "glucose", "top ramen"];
