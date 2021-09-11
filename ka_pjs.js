@@ -62,9 +62,11 @@ if (PJS_run_env.code) {
   document.body.appendChild(PJS_run_env.lib);
 
   PJS_run_env.loadLib = setInterval(function(){
-    if(Processing){
+    if (typeof Processing !== "undefined") {
       document.body.appendChild(PJS_run_env.run);
       clearInterval(PJS_run_env.loadLib);
+    } else {
+      console.log("Awaiting PJS Initialization");
     }
   }, 20);
 
