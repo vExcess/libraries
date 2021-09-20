@@ -1,40 +1,42 @@
-var PJS_run_env = {};
+// create environment object
+var pjsEnv = {};
 
-PJS_run_env.codeElement = document.getElementById("PJS_code");
+// get the PJS code
+pjsEnv.codeElement = document.getElementById("PJS_code");
 
-if (PJS_run_env.codeElement) {
+if (pjsEnv.codeElement) {
   // default the canvas width
-  if (!PJS_run_env.codeElement.dataset.width) {
-    PJS_run_env.codeElement.dataset.width = 400;
+  if (!pjsEnv.codeElement.dataset.width) {
+    pjsEnv.codeElement.dataset.width = 400;
   }
   // default the canvas height
-  if (!PJS_run_env.codeElement.dataset.height) {
-    PJS_run_env.codeElement.dataset.height = 400;
+  if (!pjsEnv.codeElement.dataset.height) {
+    pjsEnv.codeElement.dataset.height = 400;
   }
   
   // create canvas
-  PJS_run_env.canvas = document.createElement("canvas");
-  PJS_run_env.canvas.id = "PJS_canvas";
-  document.body.appendChild(PJS_run_env.canvas);
+  pjsEnv.canvas = document.createElement("canvas");
+  pjsEnv.canvas.id = "PJS_canvas";
+  pjsEnv.codeElement.parentNode.replaceChild(pjsEnv.canvas, pjsEnv.codeElement);
   
   // all the code
-  PJS_run_env.PJS_start = 
+  pjsEnv.PJS_start = 
   "var canvas = document.getElementById('PJS_canvas');\n" +
-  "var processing = new Processing(canvas, function(PJS_Inst) {\n" +
-  "  PJS_Inst.size(" + PJS_run_env.codeElement.dataset.width + ", " + PJS_run_env.codeElement.dataset.height + ");\n" +
-  "  PJS_Inst.background(0xFFF);\n" +
+  "var processing = new Processing(canvas, function(pjsInst) {\n" +
+  "  pjsInst.size(" + pjsEnv.codeElement.dataset.width + ", " + pjsEnv.codeElement.dataset.height + ");\n" +
+  "  pjsInst.background(0xFFF);\n" +
   "  var mouseIsPressed = false;\n" +
-  "  PJS_Inst.mousePressed = function() {\n" +
+  "  pjsInst.mousePressed = function() {\n" +
   "    mouseIsPressed = true;\n" +
   "  };\n" +
-  "  PJS_Inst.mouseReleased = function() {\n" +
+  "  pjsInst.mouseReleased = function() {\n" +
   "    mouseIsPressed = false;\n" +
   "  };\n" +
   "  var keyIsPressed = false;\n"+
-  "  PJS_Inst.keyPressed = function() {\n" +
+  "  pjsInst.keyPressed = function() {\n" +
   "    keyIsPressed = true;\n" +
   "  };\n" +
-  "  PJS_Inst.keyReleased = function() {\n" +
+  "  pjsInst.keyReleased = function() {\n" +
   "    keyIsPressed = false;\n" +
   "  };\n" +
   "  function getSound(s) {\n" +
@@ -46,35 +48,42 @@ if (PJS_run_env.codeElement) {
   "  }\n" +
   "  function getImage(s) {\n" +
   "    var url = 'https://www.kasandbox.org/programming-images/' + s + '.png';\n" +
-  "    PJS_Inst.externals.sketch.imageCache.add(url);\n" +
-  "    return PJS_Inst.loadImage(url);\n" +
+  "    pjsInst.externals.sketch.imageCache.add(url);\n" +
+  "    return pjsInst.loadImage(url);\n" +
   "  }\n" +
-  "  PJS_Inst.angleMode = 'degrees';\n" +
-  "  with(PJS_Inst) {\n";
+  "  pjsEnv.canvas.onmousemove = function() {\n" +
+  "    pjsInst.mouseY -= document.documentElement.scrollTop;\n" + 
+  "  };" +
+  "  pjsInst.angleMode = 'degrees';\n" +
+  "  with(pjsInst) {\n";
   
-  PJS_run_env.PJS_end = 
+  pjsEnv.PJS_end = 
   "  }\n" +
   "  if (typeof draw !== 'undefined') {\n" +
-  "    PJS_Inst.draw = draw;\n" +
+  "    pjsInst.draw = draw;\n" +
   "  }\n" +
   "});";
   
   // create the script to run the code
-  PJS_run_env.run = document.createElement("script");
-  PJS_run_env.run.innerHTML = PJS_run_env.PJS_start + PJS_run_env.codeElement.innerHTML + PJS_run_env.PJS_end;
+  pjsEnv.run = document.createElement("script");
+  pjsEnv.run.innerHTML = pjsEnv.PJS_start + pjsEnv.codeElement.innerHTML + pjsEnv.PJS_end;
   
-  // import Processing.js
-  PJS_run_env.lib = document.createElement("script");
-  PJS_run_env.lib.src = "https://cdn.jsdelivr.net/gh/Khan/processing-js@master/processing.js";
-  document.body.appendChild(PJS_run_env.lib);
+  // import KA Processing.js if its not already imported
+  if (!document.getElementById("ka_pjs_source")) {
+    pjsEnv.lib = document.createElement("script");
+    pjsEnv.lib.id = "ka_pjs_source";
+    pjsEnv.lib.src = "https://cdn.jsdelivr.net/gh/Khan/processing-js@master/processing.js";
+    document.body.appendChild(pjsEnv.lib);
+  }
   
   // once Processing.js is initialized, run the code
-  PJS_run_env.loadLib = setInterval(function(){
+  pjsEnv.loadLib = setInterval(function(){
     if (typeof Processing !== "undefined") {
-      document.body.appendChild(PJS_run_env.run);
-      clearInterval(PJS_run_env.loadLib);
+      document.body.appendChild(pjsEnv.run);
+      console.log("PJS Initialized");
+      clearInterval(pjsEnv.loadLib);
     } else {
-      console.log("Awaiting PJS Initialization");
+      console.log("Awaiting PJS Initialization. . .");
     }
   }, 20);
 
