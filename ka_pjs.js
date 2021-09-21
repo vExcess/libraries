@@ -66,7 +66,7 @@ if (pjsEnv.codeElement) {
   
   // create the script to run the code
   pjsEnv.run = document.createElement("script");
-  pjsEnv.run.innerHTML = pjsEnv.PJS_start + pjsEnv.codeElement.innerHTML + pjsEnv.PJS_end;
+  pjsEnv.run.innerHTML = pjsEnv.PJS_start + pjsEnv.codeElement.innerHTML.replace(/this(?=(?:[^"]*"[^"]*")*[^"]*$)/g, "pjsInst") + pjsEnv.PJS_end;
   
   // import KA Processing.js if its not already imported
   if (!document.getElementById("ka_pjs_source")) {
