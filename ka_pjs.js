@@ -16,27 +16,26 @@ if (pjsEnv.codeElement) {
   
   // create canvas
   pjsEnv.canvas = document.createElement("canvas");
-  pjsEnv.canvas.id = "PJS_canvas";
+  pjsEnv.canvas.id = "pjs-canvas";
   pjsEnv.codeElement.parentNode.replaceChild(pjsEnv.canvas, pjsEnv.codeElement);
   
   // all the code
   pjsEnv.PJS_start = 
-  "var canvas = document.getElementById('PJS_canvas');\n" +
-  "var processing = new Processing(canvas, function(pjsInst) {\n" +
-  "  pjsInst.size(" + pjsEnv.codeElement.dataset.width + ", " + pjsEnv.codeElement.dataset.height + ");\n" +
-  "  pjsInst.background(0xFFF);\n" +
+  "new Processing(pjsEnv.canvas, function(processingInstance) {\n" +
+  "  processingInstance.size(" + pjsEnv.codeElement.dataset.width + ", " + pjsEnv.codeElement.dataset.height + ");\n" +
+  "  processingInstance.background(0xFFF);\n" +
   "  var mouseIsPressed = false;\n" +
-  "  pjsInst.mousePressed = function() {\n" +
+  "  processingInstance.mousePressed = function() {\n" +
   "    mouseIsPressed = true;\n" +
   "  };\n" +
-  "  pjsInst.mouseReleased = function() {\n" +
+  "  processingInstance.mouseReleased = function() {\n" +
   "    mouseIsPressed = false;\n" +
   "  };\n" +
   "  var keyIsPressed = false;\n"+
-  "  pjsInst.keyPressed = function() {\n" +
+  "  processingInstance.keyPressed = function() {\n" +
   "    keyIsPressed = true;\n" +
   "  };\n" +
-  "  pjsInst.keyReleased = function() {\n" +
+  "  processingInstance.keyReleased = function() {\n" +
   "    keyIsPressed = false;\n" +
   "  };\n" +
   "  function getSound(s) {\n" +
@@ -48,32 +47,40 @@ if (pjsEnv.codeElement) {
   "  }\n" +
   "  function getImage(s) {\n" +
   "    var url = 'https://www.kasandbox.org/programming-images/' + s + '.png';\n" +
-  "    pjsInst.externals.sketch.imageCache.add(url);\n" +
-  "    return pjsInst.loadImage(url);\n" +
+  "    processingInstance.externals.sketch.imageCache.add(url);\n" +
+  "    return processingInstance.loadImage(url);\n" +
   "  }\n" +
   "  pjsEnv.canvas.onmousemove = function() {\n" +
-  "    pjsInst.mouseY -= document.documentElement.scrollTop;\n" + 
-  "  };" +
-  "  pjsInst.angleMode = 'degrees';\n" +
-  "  with(pjsInst) {\n";
+  "    processingInstance.mouseY -= document.documentElement.scrollTop;\n" + 
+  "  };\n" +
+  "  processingInstance.angleMode = 'degrees';\n" +
+  "  with(processingInstance) {\n";
   
   pjsEnv.PJS_end = 
   "  }\n" +
   "  if (typeof draw !== 'undefined') {\n" +
-  "    pjsInst.draw = draw;\n" +
+  "    processingInstance.draw = draw;\n" +
   "  }\n" +
   "});";
   
+  pjsEnv.replaceAll = function(string, oldTxt, newTxt){
+    while (string.includes(oldTxt)) {
+      string = string.replace(oldTxt, newTxt);
+    }
+    return string;
+  };
+  
   // create the script to run the code
   pjsEnv.run = document.createElement("script");
-  pjsEnv.run.innerHTML = pjsEnv.PJS_start + pjsEnv.codeElement.innerHTML.replace(/this(?=(?:[^"]*"[^"]*")*[^"]*$)/g, "pjsInst") + pjsEnv.PJS_end;
+  pjsEnv.code = pjsEnv.replaceAll(pjsEnv.codeElement.innerHTML, "this.__frameRate", "__frameRate");
+  pjsEnv.run.innerHTML = pjsEnv.PJS_start + pjsEnv.code + pjsEnv.PJS_end;
   
   // import KA Processing.js if its not already imported
   if (!document.getElementById("ka_pjs_source")) {
     pjsEnv.lib = document.createElement("script");
     pjsEnv.lib.id = "ka_pjs_source";
     pjsEnv.lib.src = "https://cdn.jsdelivr.net/gh/Khan/processing-js@master/processing.js";
-    document.body.appendChild(pjsEnv.lib);
+    document.head.appendChild(pjsEnv.lib);
   }
   
   // once Processing.js is initialized, run the code
