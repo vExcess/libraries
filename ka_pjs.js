@@ -57,6 +57,7 @@ if (pjsEnv.codeElement) {
   "  with(processingInstance) {\n";
   
   pjsEnv.PJS_end = 
+  "  \n" +
   "  }\n" +
   "  if (typeof draw !== 'undefined') {\n" +
   "    processingInstance.draw = draw;\n" +
