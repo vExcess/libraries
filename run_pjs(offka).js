@@ -72,6 +72,7 @@ if (pjsEnv.codeElement) {
   pjsEnv.run = document.createElement("script");
   pjsEnv.code = pjsEnv.replaceAll(pjsEnv.codeElement.innerHTML, "this.__frameRate", "__frameRate");
   pjsEnv.code = pjsEnv.replaceAll(pjsEnv.code, "this.cursor", "cursor");
+  pjsEnv.code = pjsEnv.replaceAll(pjsEnv.code, 'this[["KAInfiniteLoopSetTimeout"][0]]', "return ");
   pjsEnv.run.innerHTML = pjsEnv.PJS_start + pjsEnv.code + pjsEnv.PJS_end;
   
   // import KA Processing.js if its not already imported
