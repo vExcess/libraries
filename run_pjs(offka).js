@@ -71,6 +71,7 @@ if (pjsEnv.codeElement) {
   // create the script to run the code
   pjsEnv.run = document.createElement("script");
   pjsEnv.code = pjsEnv.replaceAll(pjsEnv.codeElement.innerHTML, "this.__frameRate", "__frameRate");
+  pjsEnv.code = pjsEnv.replaceAll(pjsEnv.code, "this.cursor", "cursor");
   pjsEnv.run.innerHTML = pjsEnv.PJS_start + pjsEnv.code + pjsEnv.PJS_end;
   
   // import KA Processing.js if its not already imported
