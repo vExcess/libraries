@@ -73,6 +73,7 @@ if (pjsEnv.codeElement) {
   
   // create the script to run the code
   pjsEnv.run = document.createElement("script");
+  pjsEnv.run.id = "pjs-runScript";
   pjsEnv.code = pjsEnv.replaceAll(pjsEnv.codeElement.innerHTML, "this.__frameRate", "__frameRate");
   pjsEnv.code = pjsEnv.replaceAll(pjsEnv.code, "this.cursor", "cursor");
   pjsEnv.code = pjsEnv.replaceAll(pjsEnv.code, 'this[["KAInfiniteLoopSetTimeout"]]', "return ");	
