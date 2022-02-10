@@ -28,6 +28,9 @@ if (pjsEnv.codeElement) {
   "  processingInstance.mousePressed = function() {\n" +
   "    mouseIsPressed = true;\n" +
   "  };\n" +
+  "  processingInstance.mouseClicked = function() {\n" +
+  "    mouseIsPressed = false;\n" +
+  "  };\n" +
   "  processingInstance.mouseReleased = function() {\n" +
   "    mouseIsPressed = false;\n" +
   "  };\n" +
