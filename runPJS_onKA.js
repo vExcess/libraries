@@ -42,7 +42,7 @@ function createPJS (code, options) {
     function generateCode (filling, canvas, width, height) {
         return `
 var pjsEnv = window.pjsEnvironments[${window.pjsEnvironments.length - 1}];
-new Processing(${canvas}, function(processingInstance) {
+pjsEnv.processing = new Processing(${canvas}, function(processingInstance) {
     processingInstance.size(${width}, ${height});
     processingInstance.background(0, 0, 0, 0);
     processingInstance.angleMode = 'degrees';
@@ -218,3 +218,5 @@ new Processing(${canvas}, function(processingInstance) {
     
     return pjsEnv;
 }
+
+createPJS();
