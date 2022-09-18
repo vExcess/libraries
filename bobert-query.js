@@ -68,6 +68,18 @@
         return o;
     };
     B.getJSON = function (url, callback) {
+        let prom = fetch(url).then(res => res.json());
+    
+        if (callback === undefined) {
+            return prom;
+        } else {
+            return prom.then(res => {
+                callback(res);
+                return res;
+            });
+        }
+    };
+    B.getJSONLegacy = function (url, callback) {
         let callbackId = Math.random().toString().replace(".", "");
         let script = document.createElement("script");
         B.getJSON["c" + callbackId] = function (json) {
