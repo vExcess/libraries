@@ -27,9 +27,19 @@
                     }
                 });
             } else {
-                for (var p in c) {
+                for (let p in c) {
                     this.style[p] = c;
                 }
+            }
+            return this;
+        },
+        attr: function (a, b) {
+            if (b === undefined) {
+                for (let p in a) {
+                    this[p] = a;
+                }
+            } else {
+                this[a] = b;
             }
             return this;
         },
@@ -45,7 +55,7 @@
         return e;
     }
     
-    var B = function (a, b, c) {
+    let B = function (a, b, c) {
         let o;
         if (a.charAt(0) === "#") {
             o = doEl(document.getElementById(a.slice(1)), b, c);
