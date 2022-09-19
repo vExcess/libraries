@@ -5,25 +5,32 @@
     
     Object.assign(Element.prototype, {
         appendTo: function (a) {
-            a.appendChild(this); return this;
+            a.appendChild(this);
+            return this;
         },
         addClass: function (...args) {
-            this.classList.add(...args); return this;
+            this.classList.add(...args);
+            return this;
         },
         removeClass: function (...args) {
-            this.classList.remove(...args); return this;
+            this.classList.remove(...args);
+            return this;
         },
         setId: function (a) {
             this.id = a;
+            return this;
         },
         html: function (a) {
-            this.innerHTML = a; return this;
+            this.innerHTML = a;
+            return this;
         },
         text: function (a) {
-            this.innerText = a; return this;
+            this.innerText = a;
+            return this;
         },
         on: function (a, b, c) {
-            this.addEventListener(a, b, c); return this;
+            this.addEventListener(a, b, c);
+            return this;
         },
         css: function (c) {
             if (typeof c === "string") {
