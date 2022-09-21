@@ -30,6 +30,10 @@
     
 */
 
+console.log("runPJS_onKA.js is deprecated; use runPJS.js instead!!!");
+console.log("runPJS_onKA.js is deprecated; use runPJS.js instead!!!");
+console.log("runPJS_onKA.js is deprecated; use runPJS.js instead!!!");
+
 function createPJS (code, options) {
     // create environment object
     let pjsEnv = {};
