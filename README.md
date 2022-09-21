@@ -27,6 +27,9 @@ A collection of libraries I'm storing for use. They can be used via https://www.
     Library for doing syntax highlighting when displaying code blocks in webpages
 
 ## runPJS_onKA.js
+    A now deprecated library for running Processing.js code in an environment similiar to Khan Academy. Use my runPJS.js instead.
+    
+## runPJS.js
     Library for running Processing.js code in an environment similiar to Khan Academy
 
 ## words_english.js
