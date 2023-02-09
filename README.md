@@ -2,8 +2,8 @@
 
 A collection of libraries I'm storing for use. They can be used via https://www.jsdelivr.com/github
 
-## BobertQuery.js
-    A light weight library for easily working with the DOM
+## touch.js
+    A library for detecting collisions between 2D and 3D shapes.
     
 ## IMGJS.js
     A library that converts JavaScript into PNG images and back
