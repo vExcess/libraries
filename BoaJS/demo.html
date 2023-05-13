@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8"/>
+    <title>Boa Engine</title>
+
+    <style>
+        body {
+            font-family: sans-serif;
+        }
+
+        textarea {
+            width: 50%;
+            height: 200px;
+        }
+    </style>
+
+    <script src="./index.js"></script>
+    <script src="./boa-src.js"></script>
+</head>
+<body>
+
+    <h1>Boa.js</h1>
+    <a href="https://github.com/boa-dev/boa">https://github.com/boa-dev/boa</a>
+
+    <p>Boa is an embeddable and experimental Javascript engine written in Rust. Currently, it has support for some of the language.</p>
+
+    <p>
+        I compiled Boa from Rust to WebAssembly so that you can run it in JavaScript.
+        <br>
+        Boa compiled to WASM doesn't support console.log, but I'll see if I can get it working.
+        <br>
+        The boa source is 4.02 MB uncompressed, 5.36 MB base64 encoded, and 1.08 MB gzipped.
+    </p>
+
+    <h2>JavaScript</h2>
+    <textarea id="code"></textarea>
+
+    <h2>Console</h2>
+    <textarea id="output"></textarea>
+
+    <script>
+        let codeEl = document.getElementById("code");
+        let outputEl = document.getElementById("output");
+
+        function b64ToArrBuff(base64) {
+            var binaryString = atob(base64);
+            var bytes = new Uint8Array(binaryString.length);
+            for (var i = 0; i < binaryString.length; i++) {
+                bytes[i] = binaryString.charCodeAt(i);
+            }
+            return bytes.buffer;
+        }
+
+        function run() {
+            try {
+                outputEl.value = eval(codeEl.value);
+                outputEl.style.border = "2px solid green";
+            } catch (e) {
+                outputEl.value = e;
+                outputEl.style.border = "2px solid red";
+            }
+        }
+
+        Boa.init(b64ToArrBuff(BoaB64)).then(eval => {
+            codeEl.addEventListener("input", run);
+            codeEl.value = `const addTwo = (a, b) => {\n    return a + b\n}\n\n"The answer is: " + addTwo(5, 2)`;
+            run();
+        });
+        
+        BoaB64 = ""; // unallocate memory
+    </script>
+    
+</body>
+</html>
