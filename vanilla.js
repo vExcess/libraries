@@ -1,4 +1,1 @@
-/*
-  Vanilla JS
-  http://vanilla-js.com
-*/
+// Vanilla JS (http://vanilla-js.com)
