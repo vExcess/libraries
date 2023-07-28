@@ -87,6 +87,9 @@ var ObjParser = {
 
         let vertices = objFile.vertices;
 
+        let cos = Math.cos;
+        let sin = Math.sin;
+
         let trigCache = [
             cos(rot[0]), sin(rot[0]),
             cos(rot[1]), sin(rot[1]),
