@@ -1,4 +1,4 @@
-const ObjParser = {
+var ObjParser = {
     triangulate: function(face) {
         let faces = [];
         for (var prev = 1, i = 2; i < face.length; prev = i++) {
