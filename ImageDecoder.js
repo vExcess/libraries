@@ -1621,7 +1621,7 @@ var PNG = (function() {
 
     var PNG = function(data) {
         if (typeof data === "string") {
-            data = ImageUtils.asciiToBinary(pngString);
+            data = ImageUtils.asciiToBinary(data);
         }
 
         var chunkSize, colors, delayDen, delayNum, frame, i, index, key, section, short, text, _i, _j, _ref;
