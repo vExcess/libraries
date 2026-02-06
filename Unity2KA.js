@@ -98,7 +98,7 @@ function stringit(compressed, decompressed, scripts) {
 return `<!DOCTYPE html>
 <html>
 <!--
-    Exported to KA using VExcess Unity2KA exporter (https://github.com/vExcess/libraries/blob/main/Unity2KA.js)
+    Exported using VExcess Unity2KA exporter (https://github.com/vExcess/libraries/blob/main/Unity2KA.js)
 -->
 <head>
     <meta charset="utf-8">
