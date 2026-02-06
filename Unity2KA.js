@@ -10,9 +10,9 @@
     These files are the output of your Unity build process. Unity may export them
     as .unityweb files. Rename them to .gz and decompress them.
 
-    Next add exporter.js from unity2ka (this file) to the directory.
+    Next add Unity2KA.js (this file) to the directory.
 
-    Run `node exporter.js` to export the Unity project to a KA compatible HTML file.
+    Run `node Unity2KA.js` to export the Unity project to a KA compatible HTML file.
 
     Copy/Paste the index.html file from the output directory to a KA program.
     The data and wasm files will be too big to include directly in the KA program.
@@ -20,8 +20,8 @@
     These two files need to be uploaded to Github and then imported into KA
     using jsdelivr (https://www.jsdelivr.com/github). Change the paths in the 
     SCRIPTS object (line 242) to your jsdelivr paths. jsdelivr limits files
-    to 20 MB, so if the data.js and wasm.js files are too large then you must
-    break them into chunks yourself; Unity2KA does not do this for you.
+    to 20 MB, so if the data.js or wasm.js files are too large then they get
+    chunked into multiple files.
 */
 
 const zlib = require('zlib');
@@ -89,12 +89,12 @@ const compressedData = zlib.gzipSync(dataBuffer, { level: 9 });
 const compressedWasm = zlib.gzipSync(wasmBuffer, { level: 9 });
 
 console.log("Encoding Output...");
-const base64LoaderCode = compressedLoaderCode.toString('base64');
-const base64Data = compressedData.toString('base64');
-const base64FrameworkCode = compressedFrameworkCode.toString('base64');
-const base64Wasm = compressedWasm.toString('base64');
+let base64LoaderCode = compressedLoaderCode.toString('base64');
+let base64Data = compressedData.toString('base64');
+let base64FrameworkCode = compressedFrameworkCode.toString('base64');
+let base64Wasm = compressedWasm.toString('base64');
 
-function stringit(compressed, decompressed) {
+function stringit(compressed, decompressed, scripts) {
 return `<!DOCTYPE html>
 <html>
 <!--
@@ -329,45 +329,61 @@ async function runProject() {
         }));
     \`);
 }
-
-// lets light this candle - Bob Lyon
-setTimeout(fetchResources, 50);
     </script>
 
     <script>
         /* REPLACE WITH JSDELIVR LINKS */
-        var SCRIPTS = {
-            data: "./data.js",
-            wasm: "./wasm.js",
-        };
+        var SCRIPTS = ${JSON.stringify(scripts)};
 
-        window.unity_data = 0;
-        window.unity_wasm = 0;
-
-        function loadScript(src) {
+        window.unity_data = null;
+        window.unity_wasm = null;
+        
+        var scriptsLoaded = 0;
+        var loadedFlags = new Array(SCRIPTS.length).fill(0);
+        function loadScript(idx) {
             var el = document.createElement("script");
-            el.src = src;
+            el.src = SCRIPTS[idx];
             el.async = true;
             el.onload = function() {
-                console.log(src, "loaded");
+                console.log(SCRIPTS[idx], "loaded");
+                loadedFlags[idx] = 2;
             };
             document.body.append(el);
         }
 
+        // lets light this candle - Bob Lyon
         var initInterval;
         initInterval = setInterval(function() {
-            if (window.unity_data === 0) {
-                window.unity_data = 1;    
-                loadScript(SCRIPTS.data);
-            } else if (typeof window.unity_data === "string" && window.unity_wasm === 0) {
-                window.unity_wasm = 1;
-                document.getElementById("load-notif").innerHTML += "<br>" + Math.round(window.unity_data.length / 1024 / ${compressed.replaceAll(",", "")} * 100) + "%";
-                loadScript(SCRIPTS.wasm);
-            } else if (typeof window.unity_data === "string" && typeof window.unity_wasm === "string") {
-                document.getElementById("load-notif").remove();
-                clearInterval(initInterval);
-                runProject();
+            for (var i = 0; i < loadedFlags.length; i++) {
+                if (loadedFlags[i] === 0) {
+                    loadedFlags[i] = 1;
+                    loadScript(i);
+                }
+                if (loadedFlags[i] === 1) {
+                    break;
+                }
+                if (loadedFlags[i] === 2) {
+                    loadedFlags[i] = 3;
+                    document.getElementById("load-notif").innerHTML += "<br>" + (i+1) + "/" + SCRIPTS.length + " complete";
+                }
             }
+
+            for (var i = 0; i < loadedFlags.length; i++) {
+                if (loadedFlags[i] !== 3) {
+                    return;
+                }
+            }
+
+            if (window.unity_data === null) {
+                console.error("The imported scripts did not set unity_data");
+            }
+            if (window.unity_wasm === null) {
+                console.error("The imported scripts did not set unity_wasm");
+            }
+
+            document.getElementById("load-notif").remove();
+            clearInterval(initInterval);
+            runProject();
         }, 1000 / 100);
     </script>
 </body>
@@ -381,18 +397,39 @@ function numberWithCommas(x) {
     return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 }
 
-let output = stringit(
-    numberWithCommas(Math.round((8000 + base64LoaderCode.length + base64Data.length + base64FrameworkCode.length + base64Wasm.length) / 1024)),
-    numberWithCommas(Math.round((8000 + (loaderCode.length + dataBuffer.length + frameworkCode.length + wasmBuffer.length)*1.33) / 1024)),
-);
-
 if (!fs.existsSync("./output")) {
     fs.mkdirSync("./output");
 }
 
-fs.writeFileSync("./output/index.html", output);
-fs.writeFileSync("./output/data.js", `window.unity_data = "${base64Data}"`);
-fs.writeFileSync("./output/wasm.js", `window.unity_wasm = "${base64Wasm}"`);
+var scripts = [];
+
+// write data chunks
+var chunkId = 0;
+while (base64Data.length > 0) {
+    var end = Math.min(base64Data.length, 1000 * 1000 * 20);
+    scripts.push(`./data${chunkId}.js`);
+    fs.writeFileSync(`./output/data${chunkId}.js`, `window.unity_data ${chunkId === 0 ? "=" : "+="} "${base64Data.slice(0, end)}"`);
+    chunkId++;
+    base64Data = base64Data.slice(end);
+}
+
+// write wasm chunks
+var chunkId = 0;
+while (base64Wasm.length > 0) {
+    var end = Math.min(base64Wasm.length, 1000 * 1000 * 20);
+    scripts.push(`./wasm${chunkId}.js`);
+    fs.writeFileSync(`./output/wasm${chunkId}.js`, `window.unity_wasm ${chunkId === 0 ? "=" : "+="} "${base64Wasm.slice(0, end)}"`);
+    chunkId++;
+    base64Wasm = base64Wasm.slice(end);
+}
+
+// write html
+let html = stringit(
+    numberWithCommas(Math.round((8000 + base64LoaderCode.length + base64Data.length + base64FrameworkCode.length + base64Wasm.length) / 1024)),
+    numberWithCommas(Math.round((8000 + (loaderCode.length + dataBuffer.length + frameworkCode.length + wasmBuffer.length)*1.33) / 1024)),
+    scripts
+);
+fs.writeFileSync("./output/index.html", html);
 
 console.log("Project written to the directory ./output");
-console.log("See comments at top of exporter.js for instructions.");
+console.log("See comments at top of Unity2KA.js for instructions.");
